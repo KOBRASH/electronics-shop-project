@@ -87,3 +87,15 @@ class Item:
         :return: Преобразованное число.
         """
         return float(value)
+
+    def __repr__(self):
+        """
+        Магический метод __repr__ для представления объекта в виде строки.
+        """
+        return f"Item('{self.name}', {self.price}, {self.quantity})"
+
+    def __str__(self):
+        """
+        Магический метод __str__ для представления объекта в виде строки.
+        """
+        return self.name
