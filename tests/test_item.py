@@ -1,5 +1,6 @@
 import pytest
 from src.item import Item
+from src.phone import Phone
 
 # Фикстура для создания экземпляров класса Item для тестирования
 @pytest.fixture
@@ -61,6 +62,14 @@ def test_string_to_number():
     assert Item.string_to_number('5') == 5.0
     assert Item.string_to_number('5.0') == 5.0
     assert Item.string_to_number('5.5') == 5.5
+
+
+def test_addition_with_phone():
+    # Тестирование сложения Item и Phone
+    phone = Phone("iPhone 14", 120000, 5, 2)
+    item = Item("Смартфон", 10000, 20)
+    assert phone + item == 25  # Сложение Phone и Item должно возвращать сумму количества товара
+
 
 if __name__ == '__main__':
     pytest.main()
