@@ -1,6 +1,7 @@
 import pytest
-from src.item import Item
+from src.item import Item, InstantiateCSVError
 from src.phone import Phone
+
 
 # Фикстура для создания экземпляров класса Item для тестирования
 @pytest.fixture
@@ -69,6 +70,24 @@ def test_addition_with_phone():
     phone = Phone("iPhone 14", 120000, 5, 2)
     item = Item("Смартфон", 10000, 20)
     assert phone + item == 25  # Сложение Phone и Item должно возвращать сумму количества товара
+
+def test_instantiate_from_csv_file_not_found():
+    # Тест на обработку FileNotFoundError при отсутствии файла
+    with pytest.raises(FileNotFoundError) as context:
+        Item.instantiate_from_csv('non_existent_file.csv')
+    assert str(context.value) == "Отсутствует файл item.csv"
+
+def test_instantiate_from_csv_corrupted_file():
+    # Тест на обработку InstantiateCSVError при поврежденном файле
+    with open('corrupted_items.csv', 'w') as file:
+        # Создаем поврежденный файл, например, удалим одну из колонок
+        file.write("name,price\n")
+        file.write("Item1,10.0\n")
+        file.write("Item2,15.0\n")
+
+    with pytest.raises(InstantiateCSVError) as context:
+        Item.instantiate_from_csv('corrupted_items.csv')
+    assert str(context.value) == "Файл item.csv поврежден"
 
 
 if __name__ == '__main__':

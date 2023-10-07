@@ -1,11 +1,12 @@
 import csv
 
+# Класс-исключение для обработки ошибок при создании экземпляров из CSV
+class InstantiateCSVError(Exception):
+    pass
+
 class Item:
-    """
-    Класс для представления товара в магазине.
-    """
     pay_rate = 1.0
-    all_items = []  # Изменим имя атрибута для ясности
+    all_items = []
 
     def __init__(self, name: str, price: float, quantity: int) -> None:
         """
@@ -15,16 +16,16 @@ class Item:
         :param price: Цена за единицу товара.
         :param quantity: Количество товара в магазине.
         """
-        self._name = name  # Приватный атрибут name
+        self._name = name
         self.price = price
         self.quantity = quantity
         Item.all_items.append(self)
 
-    @property
+
     def name(self):
         return self._name
 
-    @name.setter
+
     def name(self, value):
         if len(value) <= 10:
             self._name = value
@@ -45,7 +46,7 @@ class Item:
         """
         self.price *= self.pay_rate
 
-    @classmethod
+
     def set_discount_rate(cls, rate: float) -> None:
         """
         Устанавливает уровень скидки для всех товаров этого класса.
@@ -54,7 +55,7 @@ class Item:
         """
         cls.pay_rate = rate
 
-    @classmethod
+
     def get_all_items(cls) -> list:
         """
         Возвращает список всех созданных экземпляров класса.
@@ -63,22 +64,31 @@ class Item:
         """
         return cls.all_items
 
-    @classmethod
-    def instantiate_from_csv(cls, file_path: str) -> None:
+
+    def instantiate_from_csv(cls, file_path: str = 'items.csv') -> None:
         """
         Создает экземпляры класса Item из данных CSV-файла.
 
         :param file_path: Путь к CSV-файлу с данными.
         """
-        with open(file_path, mode='r', newline='') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                name = row['name']
-                price = float(row['price'])
-                quantity = int(row['quantity'])
-                cls(name, price, quantity)
+        try:
+            with open(file_path, mode='r', newline='') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    name = row.get('name')
+                    price = row.get('price')
+                    quantity = row.get('quantity')
 
-    @staticmethod
+                    if not (name and price and quantity):
+                        raise InstantiateCSVError("Файл item.csv поврежден")
+
+                    price = cls.string_to_number(price)
+                    quantity = int(quantity)
+                    cls(name, price, quantity)
+        except FileNotFoundError:
+            raise FileNotFoundError("Отсутствует файл item.csv")
+
+
     def string_to_number(value: str) -> float:
         """
         Преобразует строку в число.
